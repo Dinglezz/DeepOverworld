@@ -31,8 +31,8 @@ public class DeepslateGrass extends Block implements Fertilizable {
     private static boolean stayAlive(BlockState state, WorldView world, BlockPos pos) {
         BlockPos blockPos = pos.up();
         BlockState blockState = world.getBlockState(blockPos);
-        int i = ChunkLightProvider.getRealisticOpacity(world, state, pos, blockState, blockPos, Direction.UP, blockState.getOpacity(world, blockPos));
-        return i < world.getMaxLightLevel();
+        int i = ChunkLightProvider.getRealisticOpacity(state, blockState, Direction.UP, blockState.getOpacity());
+        return i < 15;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class DeepslateGrass extends Block implements Fertilizable {
         BlockState blockState = world.getBlockState(pos);
         BlockPos blockPos = pos.up();
         ChunkGenerator chunkGenerator = world.getChunkManager().getChunkGenerator();
-        Registry<ConfiguredFeature<?, ?>> registry = world.getRegistryManager().get(RegistryKeys.CONFIGURED_FEATURE);
+        Registry<ConfiguredFeature<?, ?>> registry = world.getRegistryManager().getOrThrow(RegistryKeys.CONFIGURED_FEATURE);
         if (blockState.isOf(Blocks.CRIMSON_NYLIUM)) {
             this.generate(registry, NetherConfiguredFeatures.CRIMSON_FOREST_VEGETATION_BONEMEAL, world, chunkGenerator, random, blockPos);
         } else if (blockState.isOf(Blocks.WARPED_NYLIUM)) {
@@ -67,6 +67,7 @@ public class DeepslateGrass extends Block implements Fertilizable {
                 this.generate(registry, NetherConfiguredFeatures.TWISTING_VINES_BONEMEAL, world, chunkGenerator, random, blockPos);
             }
         }
+
     }
 
     private void generate(
@@ -77,7 +78,7 @@ public class DeepslateGrass extends Block implements Fertilizable {
             Random random,
             BlockPos pos
     ) {
-        registry.getEntry(key).ifPresent(entry -> ((ConfiguredFeature)entry.value()).generate(world, chunkGenerator, random, pos));
+        registry.getOptional(key).ifPresent((entry) -> ((ConfiguredFeature)entry.value()).generate(world, chunkGenerator, random, pos));
     }
 
     @Override
